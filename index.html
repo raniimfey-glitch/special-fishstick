@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>رنيم فاي – السوروبان</title>
+<style>
+:root{
+  --ink:#0d1117; --deep:#161b22; --card:#1c2333; --border:#30363d;
+  --teal:#00b4d8; --teal2:#0096b7;
+  --gold:#f4a261; --gold2:#e08a3c;
+  --blush:#e76f51;
+  --pearl:#e6edf3; --muted:#768390;
+  --ok:#2dc653; --err:#e63946;
+  --bon:#f4a261; --boff:#3d4f66; --boff-h:#4a5f78;
+  --wood:#7a5c1e; --wood2:#5a420e; --rod:#1a3a5c;
+  --r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+  background:var(--ink);color:var(--pearl);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+}
+.brand{padding:.5rem 0 .2rem;text-align:center;font-size:.72rem;color:var(--muted);letter-spacing:.08em}
+.brand span{color:var(--teal);font-weight:700;font-size:.9rem}
+#app{width:100%;max-width:680px;padding:.4rem .7rem 2rem;display:flex;flex-direction:column;gap:.7rem}
+
+/* ════ SOROBAN ════ */
+.sb-title{text-align:center;font-size:.78rem;color:var(--muted);letter-spacing:.06em;margin-bottom:.3rem}
+.sb-outer{
+  background:var(--wood);border:3px solid var(--wood2);border-radius:10px;
+  padding:8px 10px 10px;
+  box-shadow:0 6px 20px rgba(0,0,0,.5),inset 0 1px 3px rgba(255,200,80,.12);
+  position:relative;overflow:hidden;
+}
+.sb-outer::after{
+  content:'';position:absolute;left:0;right:0;top:44px;
+  height:7px;background:var(--wood2);
+}
+.sb-inner{display:flex;flex-direction:row;gap:4px;justify-content:center;direction:ltr}
+.sb-sep{width:2px;background:rgba(255,200,80,.25);border-radius:1px;margin:0 2px;align-self:stretch}
+.s-col{display:flex;flex-direction:column;align-items:center;position:relative;flex:1;max-width:52px;min-width:32px}
+.s-col::before{
+  content:'';position:absolute;top:14px;bottom:0;left:50%;
+  transform:translateX(-50%);width:4px;background:var(--rod);border-radius:2px;z-index:0;
+}
+.s-lbl{font-size:.55rem;font-weight:700;color:#c8a84b;height:14px;line-height:14px;z-index:1;text-align:center;white-space:nowrap}
+.hz{display:flex;align-items:center;justify-content:center;height:20px;z-index:2;padding:0 2px}
+.ez{display:flex;flex-direction:column;align-items:center;gap:3px;padding-top:12px;z-index:2}
+.bead{
+  width:100%;max-width:46px;min-width:28px;height:18px;
+  border-radius:50%;background:var(--boff);
+  border:1.5px solid rgba(0,0,0,.3);
+  box-shadow:inset 0 2px 4px rgba(255,255,255,.18),0 2px 4px rgba(0,0,0,.4);
+  cursor:pointer;transition:background .12s,transform .08s;
+  position:relative;z-index:3;
+  -webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation;
+}
+.bead:hover{background:var(--boff-h)}
+.bead.active{background:var(--bon);box-shadow:inset 0 2px 5px rgba(255,255,255,.25),0 0 8px rgba(244,162,97,.4)}
+.bead.ro{cursor:default}
+.bead.ro:hover{background:var(--boff)}
+.bead.ro.active:hover{background:var(--bon)}
+
+.val-box{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:.45rem .8rem;text-align:center;margin-top:.5rem}
+.val-num{font-size:1.6rem;font-weight:900;color:var(--gold);letter-spacing:.08em}
+.val-lbl{font-size:.65rem;color:var(--muted)}
+.clear-btn{
+  display:block;margin:.35rem auto 0;background:none;border:1px solid var(--border);
+  border-radius:20px;color:var(--muted);font-size:.72rem;padding:.25rem .9rem;
+  cursor:pointer;font-family:inherit;transition:color .2s,border-color .2s;
+}
+.clear-btn:hover{color:var(--err);border-color:var(--err)}
+
+/* ════ TABS ════ */
+.tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center}
+.tab{
+  background:var(--card);border:1.5px solid var(--border);border-radius:20px;
+  color:var(--muted);font-size:.72rem;font-weight:600;padding:.3rem .75rem;
+  cursor:pointer;font-family:inherit;transition:all .18s;white-space:nowrap;
+}
+.tab:hover{border-color:var(--teal);color:var(--teal)}
+.tab.active{background:var(--teal2);border-color:var(--teal2);color:#fff}
+.tab.gold.active{background:var(--gold2);border-color:var(--gold2);color:#fff}
+.tab.blush.active{background:var(--blush);border-color:var(--blush);color:#fff}
+
+/* ════ EXERCISE PANEL ════ */
+.ex-panel{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:.8rem .9rem}
+.ex-title{font-size:.72rem;font-weight:700;color:var(--gold);margin-bottom:.5rem;text-align:center}
+.sub-tabs{display:flex;gap:.35rem;flex-wrap:wrap;justify-content:center;margin-bottom:.6rem}
+.sub-tab{
+  background:transparent;border:1px solid var(--border);border-radius:20px;
+  color:var(--muted);font-size:.68rem;padding:.22rem .7rem;
+  cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.sub-tab:hover{border-color:var(--teal);color:var(--teal)}
+.sub-tab.active{background:var(--teal2);border-color:var(--teal2);color:#fff}
+
+/* ── question ── */
+.q-area{text-align:center;padding:.4rem 0 .2rem}
+.q-label{font-size:.7rem;color:var(--muted);margin-bottom:.15rem}
+.q-big{font-size:1.6rem;font-weight:900;color:var(--pearl);letter-spacing:.04em;margin:.1rem 0}
+.q-sub{font-size:.7rem;color:var(--muted);margin-top:.1rem}
+
+/* ── action buttons ── */
+.act-row{display:flex;gap:.5rem;justify-content:center;margin-top:.6rem;flex-wrap:wrap}
+.act-btn{
+  border:none;border-radius:20px;font-size:.75rem;font-weight:700;
+  padding:.38rem 1rem;cursor:pointer;font-family:inherit;transition:opacity .2s;
+}
+.act-btn:hover{opacity:.82}
+.act-btn.primary{background:var(--teal2);color:#fff}
+.act-btn.sec{background:var(--gold2);color:#fff}
+.act-btn.hint-btn{background:var(--card);border:1px solid var(--border);color:var(--muted)}
+.act-btn.hidden{display:none}
+
+/* ── SOLUTION STEPS ── */
+.sol-box{
+  display:none;
+  background:rgba(0,150,183,.08);
+  border:1px solid rgba(0,180,216,.25);
+  border-radius:8px;padding:.6rem .8rem;
+  margin-top:.5rem;
+}
+.sol-box.show{display:block}
+.sol-title{font-size:.7rem;font-weight:700;color:var(--teal);margin-bottom:.4rem}
+.sol-step{
+  display:flex;align-items:flex-start;gap:.5rem;
+  font-size:.75rem;color:var(--pearl);
+  padding:.25rem 0;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  line-height:1.5;
+}
+.sol-step:last-child{border-bottom:none}
+.sol-num{
+  background:var(--teal2);color:#fff;
+  border-radius:50%;width:18px;height:18px;min-width:18px;
+  font-size:.6rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:.05rem;
+}
+.sol-txt{flex:1}
+.sol-txt b{color:var(--gold)}
+.sol-arrow{color:var(--teal);font-weight:700;font-size:.85rem}
+
+/* ── feedback ── */
+.fb{text-align:center;font-size:.85rem;font-weight:600;min-height:1.4rem;padding:.2rem}
+.fb.ok{color:var(--ok)} .fb.err{color:var(--err)}
+
+/* ── stats ── */
+.stats-row{display:flex;gap:1rem;justify-content:center;font-size:.68rem;color:var(--muted);margin-top:.5rem}
+.stats-row span b{color:var(--pearl)}
+
+/* ── progress ── */
+.prog-wrap{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin:.3rem 0}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:99px;transition:width .4s}
+
+/* ── hint-info box ── */
+.info-box{
+  background:rgba(0,180,216,.07);border-right:3px solid var(--teal);
+  border-radius:0 6px 6px 0;padding:.35rem .65rem;
+  font-size:.7rem;color:var(--teal);margin-bottom:.4rem;
+}
+
+@media(max-width:380px){
+  .bead{height:15px}
+  .sb-outer::after{top:40px}
+  .s-col::before{top:12px}
+  .hz{height:16px}
+  .ez{padding-top:10px;gap:2px}
+}
+</style>
+</head>
+<body>
+
+<div class="brand">そろばん &nbsp;|&nbsp; <span>السوروبان</span></div>
+
+<div id="app">
+
+  <!-- ══ SOROBAN ══ -->
+  <div>
+    <div class="sb-title">السوروبان التفاعلي</div>
+    <div class="sb-outer">
+      <div class="sb-inner" id="sb-main"></div>
+    </div>
+    <div class="val-box">
+      <div class="val-lbl">القيمة الحالية</div>
+      <div class="val-num" id="sb-val">0</div>
+    </div>
+    <button class="clear-btn" onclick="SB.clear()">✕ مسح</button>
+  </div>
+
+  <!-- ══ TABS ══ -->
+  <div>
+    <div style="font-size:.65rem;color:var(--muted);text-align:center;margin-bottom:.3rem">اختر المرحلة</div>
+    <div class="tabs" id="phase-tabs">
+      <button class="tab active"  onclick="UI.setPhase('write',this)">✏️ كتابة الأعداد</button>
+      <button class="tab gold"    onclick="UI.setPhase('l1',this)">⚡ المستوى الأول</button>
+      <button class="tab blush"   onclick="UI.setPhase('f5',this)">🧡 أصدقاء الخمسة</button>
+      <button class="tab"         onclick="UI.setPhase('f10',this)">💙 أصدقاء العشرة</button>
+    </div>
+  </div>
+
+  <!-- ══ EXERCISE PANEL ══ -->
+  <div class="ex-panel">
+
+    <!-- ─ WRITE ─ -->
+    <div id="phase-write">
+      <div class="ex-title">✏️ كتابة الأعداد (1 – 99999)</div>
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="Ex.startWrite('read',this)">🔵 اقرأ العدد</button>
+        <button class="sub-tab"        onclick="Ex.startWrite('set',this)">🟠 ضع العدد</button>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" id="pw-prog" style="width:0%"></div></div>
+      <div class="q-area">
+        <div class="q-label" id="pw-label">انظر إلى السوروبان واقرأ العدد</div>
+        <div class="q-big"   id="pw-q">—</div>
+        <div class="q-sub"   id="pw-sub"></div>
+      </div>
+      <!-- solution box -->
+      <div class="sol-box" id="sol-write">
+        <div class="sol-title">💡 الحل خطوة بخطوة</div>
+        <div id="sol-write-steps"></div>
+      </div>
+      <div class="fb" id="pw-fb"></div>
+      <div class="act-row">
+        <button class="act-btn hint-btn" onclick="Ex.showSol('write')">💡 الحل</button>
+        <button class="act-btn primary"  onclick="Ex.nextWrite()">التالي ◀</button>
+      </div>
+      <div class="stats-row">
+        <span>صحيح <b id="pw-ok">0</b></span>
+        <span>خطأ <b id="pw-err">0</b></span>
+        <span>المجموع <b id="pw-tot">0</b></span>
+      </div>
+    </div>
+
+    <!-- ─ L1 ─ -->
+    <div id="phase-l1" style="display:none">
+      <div class="ex-title">⚡ المستوى الأول – جمع وطرح</div>
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="Ex.startCalc('l1','add',this)">➕ جمع</button>
+        <button class="sub-tab"        onclick="Ex.startCalc('l1','sub',this)">➖ طرح</button>
+        <button class="sub-tab"        onclick="Ex.startCalc('l1','mixed',this)">🔀 مشترك</button>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" id="l1-prog" style="width:0%"></div></div>
+      <div class="q-area">
+        <div class="q-label">احسب العملية ثم شكّل النتيجة على السوروبان</div>
+        <div class="q-big" id="l1-q">—</div>
+        <div class="q-sub" id="l1-sub"></div>
+      </div>
+      <div class="sol-box" id="sol-l1">
+        <div class="sol-title">💡 الحل خطوة بخطوة</div>
+        <div id="sol-l1-steps"></div>
+      </div>
+      <div class="fb" id="l1-fb"></div>
+      <div class="act-row">
+        <button class="act-btn hint-btn" onclick="Ex.showSol('l1')">💡 الحل</button>
+        <button class="act-btn primary"  onclick="Ex.nextCalc('l1')">التالي ◀</button>
+      </div>
+      <div class="stats-row">
+        <span>صحيح <b id="l1-ok">0</b></span>
+        <span>خطأ <b id="l1-err">0</b></span>
+        <span>المجموع <b id="l1-tot">0</b></span>
+      </div>
+    </div>
+
+    <!-- ─ F5 ─ -->
+    <div id="phase-f5" style="display:none">
+      <div class="ex-title">🧡 أصدقاء الخمسة</div>
+      <div class="info-box">مكمّل الخمسة: 1+4=5 &nbsp;/&nbsp; 2+3=5 &nbsp;/&nbsp; 3+2=5 &nbsp;/&nbsp; 4+1=5</div>
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="Ex.startCalc('f5','add',this)">➕ جمع</button>
+        <button class="sub-tab"        onclick="Ex.startCalc('f5','sub',this)">➖ طرح</button>
+        <button class="sub-tab"        onclick="Ex.startCalc('f5','mixed',this)">🔀 مشترك</button>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" id="f5-prog" style="width:0%"></div></div>
+      <div class="q-area">
+        <div class="q-label">استخدم مكمّل الخمسة ثم شكّل النتيجة</div>
+        <div class="q-big" id="f5-q">—</div>
+        <div class="q-sub" id="f5-sub"></div>
+      </div>
+      <div class="sol-box" id="sol-f5">
+        <div class="sol-title">💡 الحل خطوة بخطوة</div>
+        <div id="sol-f5-steps"></div>
+      </div>
+      <div class="fb" id="f5-fb"></div>
+      <div class="act-row">
+        <button class="act-btn hint-btn" onclick="Ex.showSol('f5')">💡 الحل</button>
+        <button class="act-btn primary"  onclick="Ex.nextCalc('f5')">التالي ◀</button>
+      </div>
+      <div class="stats-row">
+        <span>صحيح <b id="f5-ok">0</b></span>
+        <span>خطأ <b id="f5-err">0</b></span>
+        <span>المجموع <b id="f5-tot">0</b></span>
+      </div>
+    </div>
+
+    <!-- ─ F10 ─ -->
+    <div id="phase-f10" style="display:none">
+      <div class="ex-title">💙 أصدقاء العشرة</div>
+      <div class="info-box">مكمّل العشرة: 1+9 / 2+8 / 3+7 / 4+6 / 5+5 / 6+4 / 7+3 / 8+2 / 9+1</div>
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="Ex.startCalc('f10','add',this)">➕ جمع</button>
+        <button class="sub-tab"        onclick="Ex.startCalc('f10','sub',this)">➖ طرح</button>
+        <button class="sub-tab"        onclick="Ex.startCalc('f10','mixed',this)">🔀 مشترك</button>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" id="f10-prog" style="width:0%"></div></div>
+      <div class="q-area">
+        <div class="q-label">استخدم مكمّل العشرة ثم شكّل النتيجة</div>
+        <div class="q-big" id="f10-q">—</div>
+        <div class="q-sub" id="f10-sub"></div>
+      </div>
+      <div class="sol-box" id="sol-f10">
+        <div class="sol-title">💡 الحل خطوة بخطوة</div>
+        <div id="sol-f10-steps"></div>
+      </div>
+      <div class="fb" id="f10-fb"></div>
+      <div class="act-row">
+        <button class="act-btn hint-btn" onclick="Ex.showSol('f10')">💡 الحل</button>
+        <button class="act-btn primary"  onclick="Ex.nextCalc('f10')">التالي ◀</button>
+      </div>
+      <div class="stats-row">
+        <span>صحيح <b id="f10-ok">0</b></span>
+        <span>خطأ <b id="f10-err">0</b></span>
+        <span>المجموع <b id="f10-tot">0</b></span>
+      </div>
+    </div>
+
+  </div><!-- ex-panel -->
+</div><!-- #app -->
+
+<script>
+/* ══════════════════════════
+   SOROBAN MODEL (5 cols)
+══════════════════════════ */
+class SorobanModel {
+  constructor(cols=5){
+    this.cols=cols;
+    this.st=Array.from({length:cols},()=>({h:false,e:[false,false,false,false]}));
+  }
+  reset(){this.st.forEach(c=>{c.h=false;c.e=[false,false,false,false];})}
+  setValue(n){
+    this.reset();
+    n=Math.max(0,Math.min(n,Math.pow(10,this.cols)-1));
+    for(let i=this.cols-1;i>=0;i--){
+      const d=n%10; n=Math.floor(n/10);
+      this.st[i].h=d>=5;
+      const ev=d%5;
+      for(let j=0;j<ev;j++) this.st[i].e[j]=true;   // top-down: e[0],e[1]...
+    }
+  }
+  getValue(){
+    let v=0;
+    for(let i=0;i<this.cols;i++){
+      const p=Math.pow(10,this.cols-1-i);
+      let d=this.st[i].h?5:0;
+      this.st[i].e.forEach(b=>{if(b)d++;});
+      v+=d*p;
+    }
+    return v;
+  }
+  toggleH(c){this.st[c].h=!this.st[c].h;}
+  // Earth beads activate one-by-one from top (e[0]) to bottom (e[3]).
+  // Pressing bead at index r:
+  //   - if r is the last active → deactivate it (step back)
+  //   - else → activate beads 0..r (fill up to this bead)
+  toggleE(c,r){
+    const e=this.st[c].e;
+    // find current active count (always a contiguous top block)
+    let act=0;
+    for(let j=0;j<4;j++){if(e[j])act=j+1;}
+    const tgt=(act===r+1)?r:r+1; // toggle: if already at r, go to r-1 (i.e. r active→r-1)
+    for(let j=0;j<4;j++) e[j]=(j<tgt);
+  }
+}
+
+/* ══════════════════════════
+   RENDERER
+══════════════════════════ */
+class SorobanRenderer {
+  constructor(id,model,interactive=false,onChange=null){
+    this.el=document.getElementById(id);
+    this.m=model; this.ia=interactive; this.cb=onChange;
+    this.build();
+  }
+  build(){
+    this.el.innerHTML='';
+    // RTL order: col 0 = leftmost = highest place value
+    // For 5 cols displayed in RTL page: col[0]=م.آلاف(left), col[4]=آحاد(right)
+    // But we want label to reflect place value correctly:
+    const LBLS=['م.آلاف','آلاف','مئات','عشرات','آحاد'];
+    const off=LBLS.length-this.m.cols;
+    for(let c=0;c<this.m.cols;c++){
+      // separator: insert after every 3 cols from the RIGHT (i.e. before col that starts new group)
+      // In a 5-col array, separator goes between col 1 and col 2 (between آلاف and مئات)
+      if(c>0 && (this.m.cols-c)%3===0){
+        const sep=document.createElement('div');sep.className='sb-sep';this.el.appendChild(sep);
+      }
+      const col=document.createElement('div'); col.className='s-col';
+      const lbl=document.createElement('div'); lbl.className='s-lbl';
+      lbl.textContent=LBLS[off+c]||''; col.appendChild(lbl);
+
+      const hz=document.createElement('div'); hz.className='hz';
+      const hb=document.createElement('div'); hb.className='bead'+(this.ia?'':' ro');
+      hb.dataset.c=c;
+      this._bind(hb,()=>{this.m.toggleH(c);this.refresh();if(this.cb)this.cb();});
+      hz.appendChild(hb); col.appendChild(hz);
+
+      const ez=document.createElement('div'); ez.className='ez';
+      for(let r=0;r<4;r++){
+        const eb=document.createElement('div'); eb.className='bead'+(this.ia?'':' ro');
+        eb.dataset.c=c; eb.dataset.r=r;
+        const rr=r;
+        this._bind(eb,()=>{this.m.toggleE(c,rr);this.refresh();if(this.cb)this.cb();});
+        ez.appendChild(eb);
+      }
+      col.appendChild(ez); this.el.appendChild(col);
+    }
+  }
+  _bind(el,fn){
+    if(!this.ia)return;
+    el.addEventListener('click',fn);
+    el.addEventListener('touchstart',e=>{e.preventDefault();fn();},{passive:false});
+  }
+  refresh(){
+    const cols=this.el.querySelectorAll('.s-col');
+    cols.forEach((col,c)=>{
+      const bs=col.querySelectorAll('.bead');
+      bs[0].classList.toggle('active',this.m.st[c].h);
+      for(let r=0;r<4;r++) bs[r+1].classList.toggle('active',this.m.st[c].e[r]);
+    });
+  }
+}
+
+/* ══════════════════════════
+   SOROBAN SINGLETON
+══════════════════════════ */
+const SB=(()=>{
+  const model=new SorobanModel(5); let rnd=null;
+  function init(){
+    rnd=new SorobanRenderer('sb-main',model,true,()=>{
+      document.getElementById('sb-val').textContent=model.getValue();
+    });
+  }
+  function clear(){model.reset();rnd.refresh();document.getElementById('sb-val').textContent='0';}
+  function show(n){model.setValue(n);rnd.refresh();document.getElementById('sb-val').textContent=n;}
+  function get(){return model.getValue();}
+  return{init,clear,show,get};
+})();
+
+/* ══════════════════════════
+   QUESTION GENERATOR
+══════════════════════════ */
+const QG={
+  ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;},
+  // anti-repeat: remember last 4 keys per type
+  _hist:{f5:[],f10:[],l1:[]},
+  _seen(type,key){
+    const h=this._hist[type]||(this._hist[type]=[]);
+    if(h.includes(key))return true;
+    h.push(key); if(h.length>4)h.shift();
+    return false;
+  },
+
+  phase1(){return this.ri(1,99999);},
+
+  level1(op){
+    let a,b,o,r,att=0;
+    do{
+      att++; a=this.ri(1,9); b=this.ri(1,9);
+      o=op==='mixed'?(Math.random()<.5?'+':'-'):(op==='add'?'+':'-');
+      r=o==='+'?a+b:a-b;
+    }while((r<0||r>9||(o==='+'&&a%5+b%5>=5&&a+b<10))&&att<300);
+    return{a,b,op:o,answer:r};
+  },
+
+  // أصدقاء الخمسة — أعداد مركبة (عشرات + آحاد)
+  // الفكرة: العملية تقع في خانة الآحاد وتحتاج مكمّل الخمسة
+  // مثال: 13 + 4  →  آحاد: 3+4 يحتاج مكمّل 5
+  //        32 - 4  →  آحاد: 2-4 يحتاج مكمّل 5
+  f5(op){
+    const pairs=[[1,4],[2,3],[3,2],[4,1]];
+    let a,b,o,r,att=0,key;
+    do{
+      att++;
+      const[x,y]=pairs[this.ri(0,3)];
+      o=op==='mixed'?(Math.random()<.5?'+':'-'):(op==='add'?'+':'-');
+      // tens digit: 1–9 (gives numbers 10–99)
+      const tens=this.ri(1,9);
+      if(o==='+'){
+        // units of a: 1–4, b = friend (y), result units = units_a + y  (needs complement-5)
+        const ua=this.ri(1,4);
+        a=tens*10+ua; b=y;
+        r=a+b;
+        // validate: units digit triggered f5 (ua+y crosses 5 or needs heaven bead)
+        if(ua+y<5||ua+y>9)continue; // must cross 5 (ua%5+y%5>=5 and sum<10)
+        // actually f5 means: ua+y >= 5 AND ua+y <= 9  (within single digit, uses heaven)
+        if(!((ua+y)>=5&&(ua+y)<=9))continue;
+      } else {
+        // units of a: must have result units after subtraction require complement-5
+        // ua - y where ua < y  (need to borrow from heaven)
+        const ua=this.ri(0,x-1); // ua < x so we can't subtract directly
+        a=tens*10+ua; b=x;
+        r=a-b;
+        if(r<0)continue;
+        // check units: ua - x < 0 means we need complement-5
+        if(ua>=x)continue; // must need complement
+      }
+      key=`${a}${o}${b}`;
+    }while((r<0||r>99||this._seen('f5',key))&&att<400);
+    return{a,b,op:o,answer:r,strat:'f5'};
+  },
+
+  // أصدقاء العشرة — أعداد مركبة تتجاوز العقد
+  // مثال: 17 + 6 = 23  (يتجاوز العشرة)
+  //        23 - 7 = 16  (يقترض من العشرات)
+  f10(op){
+    let a,b,o,r,att=0,key;
+    do{
+      att++;
+      o=op==='mixed'?(Math.random()<.5?'+':'-'):(op==='add'?'+':'-');
+      if(o==='+'){
+        // a: عدد مركب، b: يجعل الآحاد تتجاوز 10
+        const ua=this.ri(2,9);
+        b=this.ri(10-ua,9); // ua+b >= 10 → يتجاوز العقد
+        const tens=this.ri(1,8);
+        a=tens*10+ua;
+        r=a+b;
+        if(r>99||r<0)continue;
+      } else {
+        // a: عدد ذو عشرات، ua < b → نقترض من العشرات
+        b=this.ri(2,9);
+        const ua=this.ri(0,b-1); // ua < b → يحتاج اقتراض
+        const tens=this.ri(1,9);
+        a=tens*10+ua;
+        r=a-b;
+        if(r<0||r>99)continue;
+      }
+      key=`${a}${o}${b}`;
+    }while((r<0||r>99||this._seen('f10',key))&&att<400);
+    return{a,b,op:o,answer:r,strat:'f10'};
+  }
+};
+
+/* ══════════════════════════
+   SOLUTION BUILDER
+══════════════════════════ */
+const Sol={
+  /* decompose number into place-value steps */
+  writeRead(num){
+    const steps=[];
+    const s=num.toString();
+    const PLACE=['مئات الآلاف','عشرات الآلاف','آلاف','مئات','عشرات','آحاد'];
+    const off=PLACE.length-s.length;
+    steps.push({txt:`العدد هو <b>${num}</b> — نقرأه رقماً رقماً من اليسار`});
+    s.split('').forEach((d,i)=>{
+      const p=PLACE[off+i];
+      steps.push({txt:`خانة <b>${p}</b>: الرقم <b>${d}</b>`});
+    });
+    steps.push({txt:`إذاً العدد = <b>${num}</b>`});
+    return steps;
+  },
+  writeSet(num){
+    const steps=[];
+    const s=num.toString();
+    const PLACE=['مئات الآلاف','عشرات الآلاف','آلاف','مئات','عشرات','آحاد'];
+    const off=PLACE.length-s.length;
+    steps.push({txt:`نريد تشكيل العدد <b>${num}</b> على السوروبان`});
+    s.split('').forEach((d,i)=>{
+      const p=PLACE[off+i];
+      const di=+d;
+      const h=di>=5; const ev=di%5;
+      let desc=`خانة <b>${p}</b> (رقم ${di}): `;
+      if(h) desc+=`ارفع حبة السماء (تساوي 5)`;
+      if(ev>0) desc+=(h?' + ':'')+`ارفع <b>${ev}</b> حبة/حبات أرض`;
+      if(di===0) desc+=`لا تحرك شيئاً (صفر)`;
+      steps.push({txt:desc});
+    });
+    steps.push({txt:`✅ السوروبان يُظهر الآن <b>${num}</b>`});
+    return steps;
+  },
+  calc(q){
+    const steps=[];
+    const{a,b,op,answer,strat}=q;
+    const ua=a%10;        // آحاد a
+    const ta=Math.floor(a/10); // عشرات a
+    const ur=answer%10;
+    const tr=Math.floor(answer/10);
+
+    steps.push({txt:`ضع <b>${a}</b> على السوروبان (عشرات: <b>${ta}</b> ، آحاد: <b>${ua}</b>)`});
+
+    if(op==='+'){
+      if(strat==='f5'){
+        const comp=5-b;
+        steps.push({txt:`نضيف <b>${b}</b> في خانة الآحاد`});
+        steps.push({txt:`الآحاد <b>${ua}</b> + <b>${b}</b> = <b>${ua+b}</b> — نحتاج مكمّل الخمسة`});
+        steps.push({txt:`مكمّل الخمسة: <b>${b} + ${comp} = 5</b>`});
+        steps.push({txt:`↑ ارفع حبة السماء في الآحاد (+5) ثم ↓ أنزل <b>${comp}</b> حبة أرض (−${comp})`});
+      } else if(strat==='f10'){
+        const comp=10-b;
+        steps.push({txt:`نضيف <b>${b}</b> في خانة الآحاد`});
+        steps.push({txt:`الآحاد <b>${ua}</b> + <b>${b}</b> = <b>${ua+b}</b> — نتجاوز العقد`});
+        steps.push({txt:`مكمّل العشرة: <b>${b} + ${comp} = 10</b>`});
+        steps.push({txt:`↑ ارفع 1 في خانة العشرات (+10) ثم ↓ أنزل <b>${comp}</b> في الآحاد (−${comp})`});
+      } else {
+        steps.push({txt:`أضف <b>${b}</b> مباشرة في خانة الآحاد`});
+      }
+      steps.push({txt:`النتيجة = <b>${answer}</b> (عشرات: ${tr} ، آحاد: ${ur})`});
+    } else {
+      if(strat==='f5'){
+        const comp=5-b;
+        steps.push({txt:`نطرح <b>${b}</b> من خانة الآحاد`});
+        steps.push({txt:`الآحاد <b>${ua}</b> − <b>${b}</b>: الآحاد لا تكفي — نستخدم مكمّل الخمسة`});
+        steps.push({txt:`مكمّل الخمسة: <b>${b} + ${comp} = 5</b>`});
+        steps.push({txt:`↓ أنزل حبة السماء في الآحاد (−5) ثم ↑ ارفع <b>${comp}</b> حبة أرض (+${comp})`});
+      } else if(strat==='f10'){
+        const comp=10-b;
+        steps.push({txt:`نطرح <b>${b}</b> من خانة الآحاد`});
+        steps.push({txt:`الآحاد <b>${ua}</b> − <b>${b}</b>: الآحاد لا تكفي — نقترض من العشرات`});
+        steps.push({txt:`مكمّل العشرة: <b>${b} + ${comp} = 10</b>`});
+        steps.push({txt:`↓ أنزل 1 من العشرات (−10) ثم ↑ ارفع <b>${comp}</b> في الآحاد (+${comp})`});
+      } else {
+        steps.push({txt:`أنزل <b>${b}</b> مباشرة من خانة الآحاد`});
+      }
+      steps.push({txt:`النتيجة = <b>${answer}</b> (عشرات: ${tr} ، آحاد: ${ur})`});
+    }
+    steps.push({txt:`✅ شكّل <b>${answer}</b> على السوروبان`});
+    return steps;
+  }
+};
+
+function _beadDesc(n){
+  const d=n%10; // single digit for now
+  const h=d>=5; const ev=d%5;
+  let s='';
+  if(h) s+='حبة السماء مرفوعة (5)';
+  if(ev>0) s+=(h?' + ':'')+ev+' حبة أرض';
+  if(d===0) s='لا شيء مرفوع (صفر)';
+  return s;
+}
+
+function _renderSteps(containerId,steps){
+  const box=document.getElementById(containerId);
+  box.innerHTML='';
+  steps.forEach((s,i)=>{
+    const row=document.createElement('div'); row.className='sol-step';
+    const num=document.createElement('div'); num.className='sol-num'; num.textContent=i+1;
+    const txt=document.createElement('div'); txt.className='sol-txt'; txt.innerHTML=s.txt;
+    row.appendChild(num); row.appendChild(txt); box.appendChild(row);
+  });
+}
+
+/* ══════════════════════════
+   EXERCISE CONTROLLER
+══════════════════════════ */
+const Ex=(()=>{
+  let wMode='read';
+  let calcPhase='l1'; let calcOp='add';
+  let curQ=null;
+  const stats={write:{ok:0,err:0,tot:0},l1:{ok:0,err:0,tot:0},f5:{ok:0,err:0,tot:0},f10:{ok:0,err:0,tot:0}};
+
+  /* ─ WRITE ─ */
+  function startWrite(mode,btn){
+    wMode=mode;
+    if(btn){
+      btn.closest('.sub-tabs').querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    _hideSol('write');
+    nextWrite();
+  }
+
+  function nextWrite(){
+    _hideSol('write');
+    _fb('pw-fb','','');
+    const num=QG.phase1(); curQ={num,type:'write'};
+    document.getElementById('pw-q').textContent='—';
+    if(wMode==='read'){
+      SB.show(num);
+      document.getElementById('pw-label').textContent='انظر إلى السوروبان واقرأ العدد';
+      document.getElementById('pw-q').textContent='؟';
+      document.getElementById('pw-sub').textContent='ثم اضغط "الحل" لمعرفة الجواب';
+    } else {
+      SB.clear();
+      document.getElementById('pw-label').textContent='ضع هذا العدد على السوروبان';
+      document.getElementById('pw-q').textContent=num;
+      document.getElementById('pw-sub').textContent='حرّك الحبات ثم اضغط "الحل" للمراجعة';
+    }
+    _updateProg('pw-prog',stats.write);
+  }
+
+  function showSol(phase){
+    if(!curQ)return;
+    _hideSol(phase); // reset first
+    let steps=[];
+    if(phase==='write'){
+      steps=wMode==='read'?Sol.writeRead(curQ.num):Sol.writeSet(curQ.num);
+      _renderSteps('sol-write-steps',steps);
+      document.getElementById('sol-write').classList.add('show');
+      // show answer on soroban if "set" mode
+      if(wMode==='set') SB.show(curQ.num);
+      else {
+        document.getElementById('pw-q').textContent=curQ.num;
+        document.getElementById('pw-q').style.color='var(--ok)';
+      }
+    } else {
+      steps=Sol.calc(curQ);
+      _renderSteps('sol-'+phase+'-steps',steps);
+      document.getElementById('sol-'+phase).classList.add('show');
+      SB.show(curQ.answer);
+      document.getElementById(phase+'-fb').textContent='✅ الجواب: '+curQ.a+' '+curQ.op+' '+curQ.b+' = '+curQ.answer;
+      document.getElementById(phase+'-fb').className='fb ok';
+    }
+  }
+
+  /* ─ CALC ─ */
+  function startCalc(phase,op,btn){
+    calcPhase=phase; calcOp=op;
+    if(btn){
+      btn.closest('.sub-tabs').querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    _hideSol(phase);
+    _nextCalc(phase);
+  }
+
+  function _nextCalc(phase){
+    _hideSol(phase);
+    _fb(phase+'-fb','','');
+    let q;
+    if(phase==='l1')      q=QG.level1(calcOp);
+    else if(phase==='f5') q=QG.f5(calcOp);
+    else                  q=QG.f10(calcOp);
+    curQ=q; curQ.phase=phase;
+    SB.show(q.a);
+    document.getElementById(phase+'-q').textContent=q.a+' '+q.op+' '+q.b+' = ?';
+    const sub=document.getElementById(phase+'-sub');
+    sub.textContent=q.strat==='f5'?'مكمّل 5: '+q.b+' + '+(5-q.b)+' = 5':
+                    q.strat==='f10'?'مكمّل 10: '+q.b+' + '+(10-q.b)+' = 10':'';
+    _updateProg(phase+'-prog',stats[phase]);
+  }
+
+  function nextCalc(phase){
+    _hideSol(phase);
+    _fb(phase+'-fb','','');
+    document.getElementById(phase+'-q').style.color='';
+    _nextCalc(phase);
+  }
+
+  /* ─ HELPERS ─ */
+  function _hideSol(phase){
+    const id=phase==='write'?'sol-write':'sol-'+phase;
+    const el=document.getElementById(id);
+    if(el)el.classList.remove('show');
+    if(phase==='write') document.getElementById('pw-q').style.color='';
+  }
+  function _fb(id,txt,cls){
+    const el=document.getElementById(id);
+    if(el){el.textContent=txt;el.className='fb'+(cls?' '+cls:'');}
+  }
+  function _updateProg(id,s){
+    const el=document.getElementById(id);
+    if(el)el.style.width=(s.tot===0?0:Math.round(s.ok/s.tot*100))+'%';
+  }
+
+  return{startWrite,nextWrite,showSol,startCalc,nextCalc};
+})();
+
+/* ══════════════════════════
+   UI CONTROLLER
+══════════════════════════ */
+const UI=(()=>{
+  const phases=['write','l1','f5','f10'];
+  function setPhase(ph,btn){
+    document.getElementById('phase-tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    phases.forEach(p=>document.getElementById('phase-'+p).style.display=(p===ph?'block':'none'));
+    if(ph==='write')    Ex.startWrite('read',null);
+    else if(ph==='l1')  Ex.startCalc('l1','add',null);
+    else if(ph==='f5')  Ex.startCalc('f5','add',null);
+    else                Ex.startCalc('f10','add',null);
+  }
+  return{setPhase};
+})();
+
+/* ── INIT ── */
+SB.init();
+Ex.startWrite('read',null);
+</script>
+</body>
+</html>
